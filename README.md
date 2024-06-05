@@ -1,36 +1,24 @@
-# Welcome to Remix + Vite!
+# Hike fuel
 
-📖 See the [Remix docs](https://remix.run/docs) and the [Remix Vite docs](https://remix.run/docs/en/main/guides/vite) for details on supported features.
+Hike fuel is a website to help hikers plan a better nutrition while on the trail.
 
-## Development
+![](screenshot.png)
 
-Run the Vite dev server:
+## Functionality
 
-```shellscript
-npm run dev
-```
+Foods with high caloric density are not good enough for the trail. A correct amount of salt, fat, sugar and complex carbs is also needed. Eyeballing all of these values from the nutritional info is almost impossible, and trusting sport-oriented products is not recommended, since their composition is not always optimal. Therefore, this web.
 
-## Deployment
+### Roadmap
 
-First, build your app for production:
+Roughly, some functionalities that I'd like to incorporate in the future would be:
 
-```sh
-npm run build
-```
+- Automatically read nutritional info labels from a picture
+- Evaluate two or more foods combined (for example to create custom trail mixes)
+- Add a calories calculator based on trail data, to estimate the food needed.
 
-Then run the app in production mode:
+## Development info
 
-```sh
-npm start
-```
+This project uses the following technologies:
 
-Now you'll need to pick a host to deploy it to.
-
-### DIY
-
-If you're familiar with deploying Node applications, the built-in Remix app server is production-ready.
-
-Make sure to deploy the output of `npm run build`
-
-- `build/server`
-- `build/client`
+- Remix
+- Tailwind
