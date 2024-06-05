@@ -99,7 +99,7 @@ export function NutritionalInfo({
             id={id}
             name={id}
             className='w-20 text-right'
-            type='text'
+            type='number'
             placeholder={placeholder}
             onChange={(e) => handleFormChange(id, e.target.value)}
             value={formState[id]}

@@ -32,8 +32,8 @@ export default function Index() {
             safeGet('fats') * 9 + safeGet('carbs') * 4 + safeGet('protein') * 4;
           setDensity(safeGet('energy') / safeGet('quantity'));
           setCarbProt(safeGet('carbs') / safeGet('protein'));
-          setCalFat((safeGet('fats') * 9) / calculatedCals);
-          setCalSugar((safeGet('sugar') * 4) / calculatedCals);
+          setCalFat((safeGet('fats') * 9 * 100) / calculatedCals);
+          setCalSugar((safeGet('sugar') * 4 * 100) / calculatedCals);
           setSalt((safeGet('salt') * 1000) / safeGet('quantity'));
         }}
         onTitleChange={(newTitle) => {
