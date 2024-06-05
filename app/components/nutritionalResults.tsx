@@ -46,20 +46,6 @@ export function NutritionalResults({
   calSugar: number;
   salt: number;
 }) {
-  const getStyle = (key: keyof typeof grades, value: number) => {
-    const range = grades[key];
-    if (value < range.low) {
-      return 'text-yellow-500';
-    } else if (value < range.medium) {
-      return 'text-lime-600';
-    } else if (value < range.optimal) {
-      return 'text-green-700';
-    } else if (value < range.high) {
-      return 'text-amber-800';
-    } else {
-      return 'text-red-700';
-    }
-  };
   const getLevel = (key: keyof typeof grades, value: number) => {
     const range = grades[key];
     if (value < range.low) {
@@ -74,70 +60,101 @@ export function NutritionalResults({
       return 'veryHigh';
     }
   };
+
+  const getRowMarkdown = ({
+    label,
+    id,
+    value,
+    unit,
+    decimals = 0,
+    isLast = false,
+  }: {
+    label: string;
+    id: keyof typeof grades;
+    value: number;
+    unit: string;
+    decimals?: number;
+    isLast?: boolean;
+  }) => {
+    const level = getLevel(id, value);
+    const colors = {
+      low: {
+        text: 'text-yellow-500',
+        fill: 'fill-yellow-500',
+      },
+      veryLow: {
+        text: 'text-lime-600',
+        fill: 'fill-lime-600',
+      },
+      good: {
+        text: 'text-green-700',
+        fill: 'fill-green-700',
+      },
+      high: {
+        text: 'text-amber-800',
+        fill: 'fill-amber-800',
+      },
+      veryHigh: {
+        text: 'text-red-700',
+        fill: 'fill-red-700',
+      },
+    };
+    return (
+      <p
+        key={id}
+        className={`inline-flex w-full border-slate-800 py-2 ${
+          isLast ? '' : 'border-b'
+        }`}
+      >
+        {label}:
+        <span className={`inline-block w-32 ml-auto ${colors[level].text}`}>
+          {value.toFixed(decimals)} {unit}
+        </span>
+        <span className={`ml-2 ${colors[level].fill}`}>
+          <GaugeIcon level={level} />
+        </span>
+      </p>
+    );
+  };
+
   return (
     <div className='bg-white border-slate-800 border-2 p-1'>
-      <p className='inline-flex w-full border-slate-800 border-b py-2'>
-        Densidad calórica:
-        <span
-          className={`inline-block w-32 ml-auto ${getStyle(
-            'density',
-            density
-          )}`}
-        >
-          {density.toFixed(2)} kcal/gr{' '}
-        </span>
-        <span className={`ml-2 fill-current ${getStyle('density', density)}`}>
-          <GaugeIcon level={getLevel('density', density)} />
-        </span>
-      </p>
-      <p className='inline-flex w-full border-slate-800 border-b py-2'>
-        Ratio carbohidratos/proteinas:
-        <span
-          className={`inline-block w-32 ml-auto ${getStyle(
-            'carbProt',
-            carbProt
-          )}`}
-        >
-          {carbProt.toFixed(2)}
-        </span>
-        <span className={`ml-2 fill-current ${getStyle('carbProt', carbProt)}`}>
-          <GaugeIcon level={getLevel('carbProt', carbProt)} />
-        </span>
-      </p>
-      <p className='inline-flex w-full border-slate-800 border-b py-2'>
-        Grasa:
-        <span
-          className={`inline-block w-32 ml-auto ${getStyle('calFat', calFat)}`}
-        >
-          {calFat.toFixed(0)}%
-        </span>
-        <span className={`ml-2 fill-current ${getStyle('calFat', calFat)}`}>
-          <GaugeIcon level={getLevel('calFat', calFat)} />
-        </span>
-      </p>
-      <p className='inline-flex w-full border-slate-800 border-b py-2'>
-        Azúcar:
-        <span
-          className={`inline-block w-32 ml-auto ${getStyle(
-            'calSugar',
-            calSugar
-          )}`}
-        >
-          {calSugar.toFixed(0)}%
-        </span>
-        <span className={`ml-2 fill-current ${getStyle('calSugar', calSugar)}`}>
-          <GaugeIcon level={getLevel('calSugar', calSugar)} />
-        </span>
-      </p>
-      <p className='inline-flex w-full py-2'>
-        Sal:
-        <span className={`inline-block w-32 ml-auto ${getStyle('salt', salt)}`}>
-          {salt.toFixed(2)} mg/cal
-        </span>
-        <span className={`ml-2 fill-current ${getStyle('salt', salt)}`}>
-          <GaugeIcon level={getLevel('salt', salt)} />
-        </span>
-      </p>
+      {[
+        {
+          label: 'Densidad calórica',
+          id: 'density' as const,
+          value: density,
+          unit: 'kcal/gr',
+          decimals: 2,
+        },
+        {
+          label: 'Ratio carbohidratos/proteinas',
+          id: 'carbProt' as const,
+          value: carbProt,
+          unit: '',
+          decimals: 2,
+        },
+        {
+          label: 'Grasa',
+          id: 'calFat' as const,
+          value: calFat,
+          unit: '%',
+        },
+        {
+          label: 'Azúcar',
+          id: 'calSugar' as const,
+          value: calSugar,
+          unit: '%',
+        },
+        {
+          label: 'Sal',
+          id: 'salt' as const,
+          value: salt,
+          unit: 'mg/cal',
+          decimals: 2,
+          isLast: true,
+        },
+      ].map(getRowMarkdown)}
     </div>
   );
 }
