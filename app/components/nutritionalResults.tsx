@@ -1,3 +1,5 @@
+import GaugeIcon from '../icons/gauge';
+
 const grades = {
   density: {
     low: 4.41,
@@ -58,16 +60,19 @@ export function NutritionalResults({
       return 'text-red-700';
     }
   };
-
-  const getSuggestionMarkdown = (key: keyof typeof grades, value: number) => {
+  const getLevel = (key: keyof typeof grades, value: number) => {
     const range = grades[key];
-    if (value < range.medium) {
-      return <span> &gt;{range.medium}</span>;
+    if (value < range.low) {
+      return 'veryLow';
+    } else if (value < range.medium) {
+      return 'low';
+    } else if (value < range.optimal) {
+      return 'good';
+    } else if (value < range.high) {
+      return 'high';
+    } else {
+      return 'veryHigh';
     }
-    if (value < range.optimal) {
-      return undefined;
-    }
-    return <span> &lt;{range.optimal}</span>;
   };
   return (
     <div className='bg-white border-slate-800 border-2 p-1'>
@@ -79,7 +84,10 @@ export function NutritionalResults({
             density
           )}`}
         >
-          {density.toFixed(2)} kcal/gr
+          {density.toFixed(2)} kcal/gr{' '}
+        </span>
+        <span className={`ml-2 fill-current ${getStyle('density', density)}`}>
+          <GaugeIcon level={getLevel('density', density)} />
         </span>
       </p>
       <p className='inline-flex w-full border-slate-800 border-b py-2'>
@@ -92,6 +100,9 @@ export function NutritionalResults({
         >
           {carbProt.toFixed(2)}
         </span>
+        <span className={`ml-2 fill-current ${getStyle('carbProt', carbProt)}`}>
+          <GaugeIcon level={getLevel('carbProt', carbProt)} />
+        </span>
       </p>
       <p className='inline-flex w-full border-slate-800 border-b py-2'>
         Grasa:
@@ -100,21 +111,31 @@ export function NutritionalResults({
         >
           {calFat.toFixed(0)}%
         </span>
+        <span className={`ml-2 fill-current ${getStyle('calFat', calFat)}`}>
+          <GaugeIcon level={getLevel('calFat', calFat)} />
+        </span>
       </p>
       <p className='inline-flex w-full border-slate-800 border-b py-2'>
         Azúcar:
         <span
-          className={`inline-block w-32 ml-auto ${getStyle('calFat', calFat)}`}
+          className={`inline-block w-32 ml-auto ${getStyle(
+            'calSugar',
+            calSugar
+          )}`}
         >
           {calSugar.toFixed(0)}%
+        </span>
+        <span className={`ml-2 fill-current ${getStyle('calSugar', calSugar)}`}>
+          <GaugeIcon level={getLevel('calSugar', calSugar)} />
         </span>
       </p>
       <p className='inline-flex w-full py-2'>
         Sal:
-        <span
-          className={`inline-block w-32 ml-auto ${getStyle('calFat', calFat)}`}
-        >
+        <span className={`inline-block w-32 ml-auto ${getStyle('salt', salt)}`}>
           {salt.toFixed(2)} mg/cal
+        </span>
+        <span className={`ml-2 fill-current ${getStyle('salt', salt)}`}>
+          <GaugeIcon level={getLevel('salt', salt)} />
         </span>
       </p>
     </div>

@@ -48,6 +48,7 @@ const rows = [
     placeholder: '0,03',
     unit: 'g',
     style: '',
+    step: '0.1',
   },
 ] as const;
 export type DataIds = (typeof rows)[number]['id'];
@@ -87,7 +88,7 @@ export function NutritionalInfo({
         value={title}
         onChange={(e) => handleTitleChange(e.target.value)}
       />
-      {rows.map(({ id, label, placeholder, unit, style }) => (
+      {rows.map(({ id, label, placeholder, unit, style, step }) => (
         <div
           key={id}
           className={`flex border-slate-800 items-baseline ${style}`}
@@ -103,6 +104,7 @@ export function NutritionalInfo({
             placeholder={placeholder}
             onChange={(e) => handleFormChange(id, e.target.value)}
             value={formState[id]}
+            step={`${step || 1}`}
           />
           <p className='pl-1'>{unit}</p>
         </div>
