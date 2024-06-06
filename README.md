@@ -1,5 +1,7 @@
 # Hike fuel
 
+[Link](https://hike-fuel.vercel.app/)
+
 Hike fuel is a website to help hikers plan a better nutrition while on the trail.
 
 ![](screenshot.png)
@@ -15,6 +17,8 @@ Roughly, some functionalities that I'd like to incorporate in the future would b
 - Automatically read nutritional info labels from a picture
 - Evaluate two or more foods combined (for example to create custom trail mixes)
 - Add a calories calculator based on trail data, to estimate the food needed.
+- Compare two or more foods
+- Some docs on why and how the evaluation is done
 
 ## Development info
 
