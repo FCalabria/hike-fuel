@@ -104,6 +104,7 @@ export function NutritionalInfo({
             placeholder={placeholder}
             onChange={(e) => handleFormChange(id, e.target.value)}
             value={formState[id]}
+            min='0'
             step={`${step || 1}`}
           />
           <p className='pl-1'>{unit}</p>
