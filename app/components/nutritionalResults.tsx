@@ -78,11 +78,11 @@ export function NutritionalResults({
   }) => {
     const level = getLevel(id, value);
     const colors = {
-      low: {
+      veryLow: {
         text: 'text-yellow-500',
         fill: 'fill-yellow-500',
       },
-      veryLow: {
+      low: {
         text: 'text-lime-600',
         fill: 'fill-lime-600',
       },
