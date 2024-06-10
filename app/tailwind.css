@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .btn {
+    padding: theme('spacing.3');
+    border: theme('borderWidth.2') solid theme('borderColor.sky.300');
+    border-radius: theme('borderRadius.md');
+    background-color: theme('backgroundColor.sky.200');
+    text-align: center;
+    cursor: pointer;
+  }
+  .btn:hover,
+  .btn:focus-visible {
+    border-color: theme('borderColor.sky.700');
+    background-color: theme('backgroundColor.cyan.600');
+    color: theme('textColor.white');
+  }
+}

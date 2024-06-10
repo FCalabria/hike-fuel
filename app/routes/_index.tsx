@@ -2,6 +2,7 @@ import type { MetaFunction } from '@remix-run/node';
 import { useState } from 'react';
 import { DataIds, NutritionalInfo } from '~/components/nutritionalInfo';
 import { NutritionalResults } from '~/components/nutritionalResults';
+import { PictureInput } from '~/components/pictureInput';
 
 export const meta: MetaFunction = () => {
   return [
@@ -26,6 +27,7 @@ export default function Index() {
     <div className='min-h-screen bg-gradient-to-b from-sky-100 via-green-50 to-yellow-50  py-4 px-3'>
       <div className='max-w-2xl mx-auto'>
         <h1 className='text-3xl font-bold text-slate-800 pb-4'>Hike fuel</h1>
+        <PictureInput />
         <NutritionalInfo
           onNutritionChange={(nutritionInfo) => {
             const safeGet = safeGetter(nutritionInfo);
