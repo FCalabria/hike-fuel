@@ -1,5 +1,12 @@
 import { useState } from 'react';
-const rows = [
+const rows: {
+  id: string;
+  label: string;
+  placeholder: `${number}` | `${number},${number}`;
+  unit: 'gr' | 'mg' | 'kcal';
+  style: string;
+  step?: string;
+}[] = [
   {
     id: 'quantity',
     label: 'Porción',
@@ -18,39 +25,39 @@ const rows = [
     id: 'fats',
     label: 'Grasas',
     placeholder: '31,8',
-    unit: 'g',
+    unit: 'gr',
     style: 'border-b',
   },
   {
     id: 'carbs',
     label: 'Hidratos de carbono',
     placeholder: '36',
-    unit: 'g',
+    unit: 'gr',
     style: 'border-b',
   },
   {
     id: 'sugar',
     label: 'de los cuales, azúcares',
     placeholder: '31,1',
-    unit: 'g',
+    unit: 'gr',
     style: 'border-b pl-3 italic',
   },
   {
     id: 'protein',
     label: 'Proteinas',
     placeholder: '45,2',
-    unit: 'g',
+    unit: 'gr',
     style: 'border-b',
   },
   {
     id: 'salt',
     label: 'Sal',
     placeholder: '0,03',
-    unit: 'g',
+    unit: 'gr',
     style: '',
     step: '0.1',
   },
-] as const;
+];
 export type DataIds = (typeof rows)[number]['id'];
 
 export function NutritionalInfo({
