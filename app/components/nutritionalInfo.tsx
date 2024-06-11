@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { NutritionalValues } from '~/sharedTypes';
 const rows: {
-  id: string;
+  id: NutritionalValues;
   label: string;
   placeholder: `${number}` | `${number},${number}`;
   unit: 'gr' | 'mg' | 'kcal';
@@ -58,13 +59,12 @@ const rows: {
     step: '0.1',
   },
 ];
-export type DataIds = (typeof rows)[number]['id'];
 
 export function NutritionalInfo({
   onNutritionChange,
   onTitleChange,
 }: {
-  onNutritionChange(formState: Record<DataIds, string>): void;
+  onNutritionChange(formState: Record<NutritionalValues, string>): void;
   onTitleChange(newTitle: string): void;
 }) {
   const [title, setTitle] = useState('');
@@ -72,7 +72,7 @@ export function NutritionalInfo({
     rows.reduce((map, { id }) => {
       map[id] = '';
       return map;
-    }, {} as Record<DataIds, string>)
+    }, {} as Record<NutritionalValues, string>)
   );
 
   const handleTitleChange = (newTitle: string) => {
@@ -80,10 +80,15 @@ export function NutritionalInfo({
     onTitleChange(newTitle);
   };
 
-  const handleFormChange = (id: DataIds, newValue: string) => {
-    const newFormState = { ...formState, [id]: newValue };
+  const handleFormChange = (
+    id: NutritionalValues,
+    target: EventTarget & HTMLInputElement
+  ) => {
+    const newFormState = { ...formState, [id]: target.value };
     setFormState(newFormState);
-    onNutritionChange(newFormState);
+    if (target.checkValidity()) {
+      onNutritionChange(newFormState);
+    }
   };
 
   return (
@@ -109,7 +114,9 @@ export function NutritionalInfo({
             className='w-20 text-right'
             type='number'
             placeholder={placeholder}
-            onChange={(e) => handleFormChange(id, e.target.value)}
+            onChange={(e) => {
+              handleFormChange(id, e.target);
+            }}
             value={formState[id]}
             min='0'
             step={`${step || 1}`}
