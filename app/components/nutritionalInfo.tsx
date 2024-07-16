@@ -14,6 +14,7 @@ const rows: {
     placeholder: '100',
     unit: 'gr',
     style: 'border-b-4',
+    step: '1',
   },
   {
     id: 'energy',
@@ -21,6 +22,7 @@ const rows: {
     placeholder: '320',
     unit: 'kcal',
     style: 'border-b',
+    step: '1',
   },
   {
     id: 'fats',
@@ -144,7 +146,7 @@ export function NutritionalInfo({
             }}
             value={formState[id]}
             min='0'
-            step={`${step || 1}`}
+            step={`${step || 0.1}`}
           />
           <p className='pl-1'>{unit}</p>
         </div>
