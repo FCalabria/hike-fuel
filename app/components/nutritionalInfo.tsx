@@ -60,11 +60,13 @@ const rows: {
   },
 ];
 
+export type NutritionalData = Record<NutritionalValues, string>;
+
 export function NutritionalInfo({
   onNutritionChange,
   onTitleChange,
 }: {
-  onNutritionChange(formState: Record<NutritionalValues, string>): void;
+  onNutritionChange(formState: NutritionalData): void;
   onTitleChange(newTitle: string): void;
 }) {
   const [title, setTitle] = useState('');
@@ -72,7 +74,7 @@ export function NutritionalInfo({
     rows.reduce((map, { id }) => {
       map[id] = '';
       return map;
-    }, {} as Record<NutritionalValues, string>)
+    }, {} as NutritionalData)
   );
   const [formErrors, setFormErrors] = useState(() =>
     rows.reduce((map, { id }) => {
