@@ -74,10 +74,28 @@ export function NutritionalInfo({
       return map;
     }, {} as Record<NutritionalValues, string>)
   );
+  const [formErrors, setFormErrors] = useState(() =>
+    rows.reduce((map, { id }) => {
+      map[id] = false;
+      return map;
+    }, {} as Record<NutritionalValues, boolean>)
+  );
 
   const handleTitleChange = (newTitle: string) => {
     setTitle(newTitle);
     onTitleChange(newTitle);
+  };
+
+  const checkInputValidity = (
+    id: NutritionalValues,
+    target: EventTarget & HTMLInputElement
+  ) => {
+    if (target.checkValidity()) {
+      setFormErrors({ ...formErrors, [id]: false });
+      return true;
+    }
+    setFormErrors({ ...formErrors, [id]: true });
+    return false;
   };
 
   const handleFormChange = (
@@ -86,7 +104,7 @@ export function NutritionalInfo({
   ) => {
     const newFormState = { ...formState, [id]: target.value };
     setFormState(newFormState);
-    if (target.checkValidity()) {
+    if (checkInputValidity(id, target)) {
       onNutritionChange(newFormState);
     }
   };
@@ -111,11 +129,16 @@ export function NutritionalInfo({
           <input
             id={id}
             name={id}
-            className='w-20 text-right'
+            className={`w-20 text-right p-0.5 rounded ${
+              formErrors[id] ? 'border-2 border-red-700' : ''
+            }`}
             type='number'
             placeholder={placeholder}
             onChange={(e) => {
               handleFormChange(id, e.target);
+            }}
+            onBlur={(e) => {
+              checkInputValidity(id, e.target);
             }}
             value={formState[id]}
             min='0'
