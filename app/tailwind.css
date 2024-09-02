@@ -15,4 +15,7 @@
   .btn-icon {
     @apply px-2;
   }
+  .btn-primary:disabled {
+    @apply bg-slate-300 text-slate-700;
+  }
 }
