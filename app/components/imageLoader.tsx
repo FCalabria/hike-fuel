@@ -1,4 +1,4 @@
-import { forwardRef, useRef, useImperativeHandle, useState } from 'react';
+import { forwardRef, useRef, useImperativeHandle } from 'react';
 
 type MaybeString = string | null | undefined;
 export type ImageLoaderHandle = {
@@ -7,7 +7,7 @@ export type ImageLoaderHandle = {
 
 const ImageLoader = forwardRef<
   ImageLoaderHandle,
-  { onChange: (s: MaybeString) => any }
+  { onChange: (s: MaybeString) => void }
 >(({ onChange }, ref) => {
   const imgButtonRef = useRef<HTMLInputElement>(null);
   useImperativeHandle(ref, () => ({
@@ -43,4 +43,5 @@ const ImageLoader = forwardRef<
     />
   );
 });
-export default ImageLoader;
+ImageLoader.displayName = 'ImageLoader';
+export { ImageLoader };

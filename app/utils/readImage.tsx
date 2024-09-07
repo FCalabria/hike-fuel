@@ -25,15 +25,6 @@ export async function readImage(
   if (!base64Img) {
     return null;
   }
-  return Promise.resolve({
-    quantity: 100,
-    energy: 50,
-    carbs: 50,
-    sugar: 20,
-    fats: 10,
-    protein: 5,
-    salt: 0.2,
-  });
   try {
     const chatCompletion = await openai.chat.completions.create({
       messages: [
@@ -42,7 +33,7 @@ export async function readImage(
           content: [
             {
               type: 'text',
-              text: 'This image contains a nutritional info label. It can be in any language, but probably is in spanish or english. I need you to return the values per portion with key-value pairs where the value always represents grams except for the calories where it represents kcal. If you cannot identify some or all the values, use null.',
+              text: 'This image contains a nutritional info label. It can be in any language, but probably is in spanish or english. The information might be duplicated in columns referencing different serving sizes: in that case, always use the data in the first column. I need you to return the values per portion with key-value pairs where the value always represents grams except for the calories where it represents kcal. If you cannot identify some or all the values, use null. ',
             },
             {
               type: 'image_url',

@@ -1,9 +1,9 @@
 import type { ActionFunctionArgs, MetaFunction } from '@remix-run/node';
-import { useFetcher } from '@remix-run/react';
-import { useEffect, useRef, useState } from 'react';
-import ImageLoader, { ImageLoaderHandle } from '~/components/imageLoader';
+import { useRef, useState } from 'react';
+import { ImageLoader, ImageLoaderHandle } from '~/components/imageLoader';
 import { NutritionalData, NutritionalInfo } from '~/components/nutritionalInfo';
 import { NutritionalResults } from '~/components/nutritionalResults';
+import { usePromisifiedFetcher } from '~/hooks/usePromisifiedFetcher';
 import PhotoIcon from '~/icons/photo';
 import TrashIcon from '~/icons/trash';
 import { calculateNutritionalInfo } from '~/utils/nutritionalInfoCalculator';
@@ -48,7 +48,7 @@ export const action = async ({
 
 export default function Index() {
   const imageLoaderRef = useRef<ImageLoaderHandle>(null);
-  const fetcher = useFetcher<ActionReturn>();
+  const fetcher = usePromisifiedFetcher<NutritionalData>();
   const [foods, setFoods] = useState<Food[]>([
     { title: '', id: getRandomId() },
   ]);
@@ -65,12 +65,6 @@ export default function Index() {
     }
     return acc;
   });
-
-  useEffect(() => {
-    if (fetcher.data) {
-      handleAddFood(fetcher.data);
-    }
-  }, [fetcher.data]);
 
   const handleAddFood = (initialNutritionalInfo?: NutritionalData) => {
     setFoods([
@@ -93,7 +87,11 @@ export default function Index() {
 
   const handleAddFoodFromPicture = (img?: string | null) => {
     if (!img) return;
-    fetcher.submit({ img }, { method: 'POST' });
+    fetcher.submit({ img }, { method: 'POST' }).then((response) => {
+      const newIndex = foods.length;
+      handleAddFood(response);
+      handleChangeNutritionalResults(response, newIndex);
+    });
   };
 
   const handleChangeNutritionalResults = (
