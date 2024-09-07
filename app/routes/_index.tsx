@@ -1,12 +1,12 @@
 import type { ActionFunctionArgs, MetaFunction } from '@remix-run/node';
-import { redirect, useFetcher } from '@remix-run/react';
-import { useRef, useState } from 'react';
+import { useFetcher } from '@remix-run/react';
+import { useEffect, useRef, useState } from 'react';
 import { NutritionalData, NutritionalInfo } from '~/components/nutritionalInfo';
 import { NutritionalResults } from '~/components/nutritionalResults';
 import PhotoIcon from '~/icons/photo';
 import TrashIcon from '~/icons/trash';
 import { calculateNutritionalInfo } from '~/utils/nutritionalInfoCalculator';
-import { readImage } from '~/utils/readImage';
+import { ReadImageData, readImage } from '~/utils/readImage';
 
 export const meta: MetaFunction = () => {
   return [
@@ -18,25 +18,36 @@ export const meta: MetaFunction = () => {
 interface Food {
   title: string;
   id: number;
+  initialNutritionalInfo?: NutritionalData;
 }
 
 const getRandomId = () => {
   return Math.floor(Math.random() * 100);
 };
-
-export const action = async ({ request, params }: ActionFunctionArgs) => {
+type ReadImagePayloadTransformed = { [K in keyof ReadImageData]: string };
+type ActionReturn = null | ReadImagePayloadTransformed;
+export const action = async ({
+  request,
+}: ActionFunctionArgs): Promise<ActionReturn> => {
   const body = await request.formData();
   const img = body.get('img');
   if (!img || typeof img !== 'string') {
     return null;
   }
-  return await readImage(img);
+  return readImage(img).then((info) => {
+    if (!info) return info;
+    return Object.fromEntries(
+      Object.entries(info).map(([key, value]) => [
+        key,
+        value !== null ? value.toString() : '',
+      ])
+    ) as ReadImagePayloadTransformed;
+  });
 };
 
 export default function Index() {
-  const fetcher = useFetcher();
   const imgButtonRef = useRef<HTMLInputElement>(null);
-  const [gettingImgFor, setGettingImgFor] = useState<number>();
+  const fetcher = useFetcher<ActionReturn>();
   const [foods, setFoods] = useState<Food[]>([
     { title: '', id: getRandomId() },
   ]);
@@ -54,15 +65,11 @@ export default function Index() {
     return acc;
   });
 
-  const handleTakePicture = async (formIndex: number) => {
-    const imgButton = imgButtonRef.current;
-    if (!imgButton) {
-      // Early return for TS purposes
-      return;
+  useEffect(() => {
+    if (fetcher.data) {
+      handleAddFood(fetcher.data);
     }
-    setGettingImgFor(formIndex);
-    imgButton.click();
-  };
+  }, [fetcher.data]);
 
   const handleGetImage = () => {
     const file = imgButtonRef.current?.files?.[0];
@@ -72,24 +79,22 @@ export default function Index() {
     const reader = new FileReader();
     reader.onload = async ({ target }) => {
       if (target?.result) {
-        try {
-          const result = await fetcher.submit(
-            { img: target.result as string },
-            {
-              method: 'POST',
-            }
-          );
-          console.log('MC  |  reader.onload=  |  result:', result);
-        } finally {
-          setGettingImgFor(undefined);
-        }
+        fetcher.submit(
+          { img: target.result as string },
+          {
+            method: 'POST',
+          }
+        );
       }
     };
     reader.readAsDataURL(file);
   };
 
-  const handleAddFood = () => {
-    setFoods([...foods, { title: '', id: getRandomId() }]);
+  const handleAddFood = (initialNutritionalInfo?: NutritionalData) => {
+    setFoods([
+      ...foods,
+      { title: '', id: getRandomId(), initialNutritionalInfo },
+    ]);
   };
 
   const handleRemoveFood = (i: number) => {
@@ -127,11 +132,7 @@ export default function Index() {
           />
           {foods.map((food, i) => (
             <div
-              className={`grid ${
-                foods.length > 1
-                  ? 'grid-cols-[1fr_min-content_min-content]'
-                  : 'grid-cols-[1fr_min-content]'
-              } items-start gap-x-1`}
+              className='grid grid-cols-[1fr_min-content] items-start gap-x-1'
               key={food.id}
             >
               <NutritionalInfo
@@ -141,17 +142,8 @@ export default function Index() {
                 onTitleChange={(newTitle) => {
                   handleChangeFood({ ...food, title: newTitle }, i);
                 }}
+                initialData={food.initialNutritionalInfo}
               />
-              <button
-                className='btn btn-primary btn-icon'
-                aria-label='Tomar foto'
-                disabled={gettingImgFor !== undefined}
-                onClick={() => {
-                  handleTakePicture(i);
-                }}
-              >
-                <PhotoIcon />
-              </button>
               {foods.length > 1 ? (
                 <button
                   className='btn btn-destructive btn-icon'
@@ -165,9 +157,26 @@ export default function Index() {
               ) : null}
             </div>
           ))}
-          <button className='btn btn-primary' onClick={handleAddFood}>
-            Añadir comida
-          </button>
+          <div className='flex space-x-2'>
+            <button className='btn btn-primary' onClick={() => handleAddFood()}>
+              Añadir comida
+            </button>
+            <button
+              className='btn btn-primary inline-flex gap-1 items-center'
+              disabled={fetcher.state !== 'idle'}
+              onClick={() => {
+                const imgButton = imgButtonRef.current;
+                if (!imgButton) {
+                  // Early return for TS purposes
+                  return;
+                }
+                imgButton.click();
+              }}
+            >
+              <PhotoIcon />
+              Añadir de foto
+            </button>
+          </div>
         </div>
         <h2 className='text-xl font-bold text-slate-800 pt-4 pb-2'>
           Evaluación total

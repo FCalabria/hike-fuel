@@ -67,16 +67,19 @@ export type NutritionalData = Record<NutritionalValues, string>;
 export function NutritionalInfo({
   onNutritionChange,
   onTitleChange,
+  initialData = {} as NutritionalData,
 }: {
   onNutritionChange(formState: NutritionalData): void;
   onTitleChange(newTitle: string): void;
+  initialData?: NutritionalData;
 }) {
+  console.log('--->  |  initialData<---', initialData);
   const [title, setTitle] = useState('');
   const [formState, setFormState] = useState(() =>
     rows.reduce((map, { id }) => {
       map[id] = '';
       return map;
-    }, {} as NutritionalData)
+    }, initialData)
   );
   const [formErrors, setFormErrors] = useState(() =>
     rows.reduce((map, { id }) => {
@@ -128,7 +131,7 @@ export function NutritionalInfo({
           className={`flex border-slate-800 items-baseline ${style}`}
         >
           <label htmlFor={id} className='grow py-2'>
-            {label}
+            {label} - {initialData[id]}
           </label>
           <input
             id={id}
