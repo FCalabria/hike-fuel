@@ -1,6 +1,7 @@
 import type { ActionFunctionArgs, MetaFunction } from '@remix-run/node';
 import { useFetcher } from '@remix-run/react';
 import { useEffect, useRef, useState } from 'react';
+import ImageLoader, { ImageLoaderHandle } from '~/components/imageLoader';
 import { NutritionalData, NutritionalInfo } from '~/components/nutritionalInfo';
 import { NutritionalResults } from '~/components/nutritionalResults';
 import PhotoIcon from '~/icons/photo';
@@ -46,7 +47,7 @@ export const action = async ({
 };
 
 export default function Index() {
-  const imgButtonRef = useRef<HTMLInputElement>(null);
+  const imageLoaderRef = useRef<ImageLoaderHandle>(null);
   const fetcher = useFetcher<ActionReturn>();
   const [foods, setFoods] = useState<Food[]>([
     { title: '', id: getRandomId() },
@@ -71,25 +72,6 @@ export default function Index() {
     }
   }, [fetcher.data]);
 
-  const handleGetImage = () => {
-    const file = imgButtonRef.current?.files?.[0];
-    if (!file || file?.size === 0) {
-      return;
-    }
-    const reader = new FileReader();
-    reader.onload = async ({ target }) => {
-      if (target?.result) {
-        fetcher.submit(
-          { img: target.result as string },
-          {
-            method: 'POST',
-          }
-        );
-      }
-    };
-    reader.readAsDataURL(file);
-  };
-
   const handleAddFood = (initialNutritionalInfo?: NutritionalData) => {
     setFoods([
       ...foods,
@@ -109,6 +91,11 @@ export default function Index() {
     setFoods(foodsCopy);
   };
 
+  const handleAddFoodFromPicture = (img?: string | null) => {
+    if (!img) return;
+    fetcher.submit({ img }, { method: 'POST' });
+  };
+
   const handleChangeNutritionalResults = (
     newNutritionInfo: NutritionalData,
     i: number
@@ -123,12 +110,9 @@ export default function Index() {
       <div className='max-w-2xl mx-auto'>
         <h1 className='text-3xl font-bold text-slate-800 pb-4'>Hike fuel</h1>
         <div className='space-y-2'>
-          <input
-            type='file'
-            accept='image/*'
-            className='hidden'
-            ref={imgButtonRef}
-            onChange={handleGetImage}
+          <ImageLoader
+            ref={imageLoaderRef}
+            onChange={handleAddFoodFromPicture}
           />
           {foods.map((food, i) => (
             <div
@@ -165,12 +149,7 @@ export default function Index() {
               className='btn btn-primary inline-flex gap-1 items-center'
               disabled={fetcher.state !== 'idle'}
               onClick={() => {
-                const imgButton = imgButtonRef.current;
-                if (!imgButton) {
-                  // Early return for TS purposes
-                  return;
-                }
-                imgButton.click();
+                imageLoaderRef.current?.loadImage();
               }}
             >
               <PhotoIcon />
