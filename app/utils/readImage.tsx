@@ -52,6 +52,6 @@ export async function readImage(
     return info ? JSON.parse(info) : null;
   } catch (error) {
     console.debug('--->  |  readImage  |  error<---', error);
-    return null;
+    throw error;
   }
 }

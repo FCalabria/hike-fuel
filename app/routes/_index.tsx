@@ -1,4 +1,10 @@
-import type { ActionFunctionArgs, MetaFunction } from '@remix-run/node';
+import {
+  TypedResponse,
+  json,
+  type ActionFunctionArgs,
+  type MetaFunction,
+} from '@remix-run/node';
+import { useRouteError } from '@remix-run/react';
 import { useRef, useState } from 'react';
 import { ImageLoader, ImageLoaderHandle } from '~/components/imageLoader';
 import { NutritionalData, NutritionalInfo } from '~/components/nutritionalInfo';
@@ -25,26 +31,46 @@ interface Food {
 const getRandomId = () => {
   return Math.floor(Math.random() * 100);
 };
+
 type ReadImagePayloadTransformed = { [K in keyof ReadImageData]: string };
-type ActionReturn = null | ReadImagePayloadTransformed;
+type ActionReturn = TypedResponse<null> | ReadImagePayloadTransformed;
+
 export const action = async ({
   request,
 }: ActionFunctionArgs): Promise<ActionReturn> => {
   const body = await request.formData();
   const img = body.get('img');
   if (!img || typeof img !== 'string') {
-    return null;
+    throw json('img is empty or not the correct type', { status: 400 });
   }
-  return readImage(img).then((info) => {
-    if (!info) return info;
-    return Object.fromEntries(
-      Object.entries(info).map(([key, value]) => [
-        key,
-        value !== null ? value.toString() : '',
-      ])
-    ) as ReadImagePayloadTransformed;
-  });
+  return readImage(img)
+    .then((info) => {
+      if (!info) throw json(null, { status: 204 });
+      return Object.fromEntries(
+        Object.entries(info).map(([key, value]) => [
+          key,
+          value !== null ? value.toString() : '',
+        ])
+      ) as ReadImagePayloadTransformed;
+    })
+    .catch((error) => {
+      throw json(error, { status: 500 });
+    });
 };
+
+export function ErrorBoundary() {
+  // TODO improve error handling in FED
+  const error = useRouteError();
+
+  return (
+    <div>
+      <div className='absolute top-0 w-full p-2 bg-red-700 text-slate-200 flex'>
+        Error: {JSON.stringify(error)}
+      </div>
+      <Index />
+    </div>
+  );
+}
 
 export default function Index() {
   const imageLoaderRef = useRef<ImageLoaderHandle>(null);

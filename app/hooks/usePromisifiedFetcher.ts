@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef } from 'react';
 class Deferred<T> {
   promise: Promise<T>;
   resolve: (value: T) => void;
-  reject: (reason?: any) => void;
+  reject: (reason?: Error | string) => void;
   constructor() {
     this.resolve = () => {};
     this.reject = () => {};
