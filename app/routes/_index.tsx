@@ -10,6 +10,7 @@ import { ImageLoader, ImageLoaderHandle } from '~/components/imageLoader';
 import { NutritionalData, NutritionalInfo } from '~/components/nutritionalInfo';
 import { NutritionalResults } from '~/components/nutritionalResults';
 import { usePromisifiedFetcher } from '~/hooks/usePromisifiedFetcher';
+import LoadingIcon from '~/icons/loading';
 import PhotoIcon from '~/icons/photo';
 import TrashIcon from '~/icons/trash';
 import { calculateNutritionalInfo } from '~/utils/nutritionalInfoCalculator';
@@ -176,7 +177,7 @@ export default function Index() {
                 imageLoaderRef.current?.loadImage();
               }}
             >
-              <PhotoIcon />
+              {fetcher.state === 'idle' ? <PhotoIcon /> : <LoadingIcon />}
               Añadir de foto
             </button>
           </div>
