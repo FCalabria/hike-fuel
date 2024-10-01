@@ -6,3 +6,5 @@ export type NutritionalValues =
   | 'fats'
   | 'protein'
   | 'salt';
+
+export type NutritionalData = Record<NutritionalValues, string>;

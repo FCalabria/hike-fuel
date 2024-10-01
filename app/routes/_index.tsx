@@ -2,13 +2,14 @@ import { type MetaFunction } from '@remix-run/node';
 import { useRouteError } from '@remix-run/react';
 import { useRef, useState } from 'react';
 import { ImageLoader, ImageLoaderHandle } from '~/components/imageLoader';
-import { NutritionalData, NutritionalInfo } from '~/components/nutritionalInfo';
+import { NutritionalInfo } from '~/components/nutritionalInfo';
 import { NutritionalResults } from '~/components/nutritionalResults';
 import LoadingIcon from '~/icons/loading';
 import PhotoIcon from '~/icons/photo';
 import TrashIcon from '~/icons/trash';
 import { calculateNutritionalInfo } from '~/utils/nutritionalInfoCalculator';
 import { ReadImagePayloadTransformed } from './readImage';
+import { type NutritionalData } from '~/sharedTypes';
 
 export const meta: MetaFunction = () => {
   return [
@@ -20,8 +21,18 @@ export const meta: MetaFunction = () => {
 interface Food {
   title: string;
   id: number;
-  initialNutritionalInfo?: NutritionalData;
+  nutritionalData: NutritionalData;
 }
+
+const getDefaultNutritionalData: () => NutritionalData = () => ({
+  quantity: '',
+  carbs: '',
+  energy: '',
+  fats: '',
+  protein: '',
+  salt: '',
+  sugar: '',
+});
 
 const getRandomId = () => {
   return Math.floor(Math.random() * 100);
@@ -45,27 +56,31 @@ export default function Index() {
   const imageLoaderRef = useRef<ImageLoaderHandle>(null);
   const [loadingImage, setLoadingImage] = useState(false);
   const [foods, setFoods] = useState<Food[]>([
-    { title: '', id: getRandomId() },
+    {
+      title: '',
+      id: getRandomId(),
+      nutritionalData: getDefaultNutritionalData(),
+    },
   ]);
-  const [nutritionalResults, setNutritionalResults] = useState<
-    ReturnType<typeof calculateNutritionalInfo>[]
-  >([{ calFat: 0, calSugar: 0, carbProt: 0, density: 0, salt: 0 }]);
 
-  const accNutritionalResuts = nutritionalResults.reduce((acc, curr) => {
-    for (const keyTemp in acc) {
-      const key = keyTemp as keyof ReturnType<typeof calculateNutritionalInfo>;
-      if (Object.prototype.hasOwnProperty.call(acc, key)) {
-        acc[key] = acc[key] + curr[key];
+  const nutritionalResult = foods
+    .map(({ nutritionalData }) => calculateNutritionalInfo(nutritionalData))
+    .reduce((acc, curr) => {
+      for (const keyTemp in acc) {
+        const key = keyTemp as keyof ReturnType<
+          typeof calculateNutritionalInfo
+        >;
+        if (Object.prototype.hasOwnProperty.call(acc, key)) {
+          acc[key] = acc[key] + curr[key];
+        }
       }
-    }
-    return acc;
-  });
+      return acc;
+    });
 
-  const handleAddFood = (initialNutritionalInfo?: NutritionalData) => {
-    setFoods([
-      ...foods,
-      { title: '', id: getRandomId(), initialNutritionalInfo },
-    ]);
+  const handleAddFood = (
+    nutritionalData: NutritionalData = getDefaultNutritionalData()
+  ) => {
+    setFoods([...foods, { title: '', id: getRandomId(), nutritionalData }]);
   };
 
   const handleRemoveFood = (i: number) => {
@@ -80,40 +95,27 @@ export default function Index() {
     setFoods(foodsCopy);
   };
 
-  const handleAddFoodFromPicture = (img?: string | null) => {
+  const handleAddFoodFromPicture = async (img?: string | null) => {
     if (!img) return;
     setLoadingImage(true);
     try {
-      fetch('/readImage', {
+      const response = await fetch('/readImage', {
         method: 'POST',
         body: img,
-      })
-        .then((response) => {
-          if (response.ok) {
-            return response.json() as Promise<ReadImagePayloadTransformed>;
-          }
-          throw new Error(response.statusText);
-        })
-        .then((response) => {
-          if (response) {
-            const newIndex = foods.length;
-            handleAddFood(response);
-            handleChangeNutritionalResults(response, newIndex);
-          }
-        });
+      });
+      if (!response.ok) {
+        throw new Error(response.statusText);
+      }
+      const result = (await response.json()) as ReadImagePayloadTransformed;
+      if (!result) {
+        throw new Error('Empty server response');
+      }
+      handleAddFood(result);
     } catch (error) {
       console.log('LOG  |  handleAddFoodFromPicture  |  error', error);
+    } finally {
+      setLoadingImage(false);
     }
-    setLoadingImage(false);
-  };
-
-  const handleChangeNutritionalResults = (
-    newNutritionInfo: NutritionalData,
-    i: number
-  ) => {
-    const nutritionalResultsCopy = [...nutritionalResults];
-    nutritionalResultsCopy[i] = calculateNutritionalInfo(newNutritionInfo);
-    setNutritionalResults(nutritionalResultsCopy);
   };
 
   return (
@@ -131,13 +133,16 @@ export default function Index() {
               key={food.id}
             >
               <NutritionalInfo
-                onNutritionChange={(nutritionInfo) => {
-                  handleChangeNutritionalResults(nutritionInfo, i);
+                onNutritionChange={(newNutritionalData) => {
+                  handleChangeFood(
+                    { ...food, nutritionalData: newNutritionalData },
+                    i
+                  );
                 }}
                 onTitleChange={(newTitle) => {
                   handleChangeFood({ ...food, title: newTitle }, i);
                 }}
-                initialData={food.initialNutritionalInfo}
+                nutritionalData={food.nutritionalData}
               />
               {foods.length > 1 ? (
                 <button
@@ -171,7 +176,7 @@ export default function Index() {
         <h2 className='text-xl font-bold text-slate-800 pt-4 pb-2'>
           Evaluación total
         </h2>
-        <NutritionalResults {...accNutritionalResuts} />
+        <NutritionalResults {...nutritionalResult} />
       </div>
     </div>
   );

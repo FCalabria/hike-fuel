@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NutritionalValues } from '~/sharedTypes';
+import { type NutritionalData, type NutritionalValues } from '~/sharedTypes';
 const rows: {
   id: NutritionalValues;
   label: string;
@@ -58,31 +58,20 @@ const rows: {
     placeholder: '0,03',
     unit: 'gr',
     style: '',
-    step: '0.1',
+    step: '0.01',
   },
 ];
-
-export type NutritionalData = Record<NutritionalValues, string>;
 
 export function NutritionalInfo({
   onNutritionChange,
   onTitleChange,
-  initialData = {
-    quantity: '',
-    energy: '',
-    fats: '',
-    carbs: '',
-    sugar: '',
-    protein: '',
-    salt: '',
-  },
+  nutritionalData,
 }: {
   onNutritionChange(formState: NutritionalData): void;
   onTitleChange(newTitle: string): void;
-  initialData?: NutritionalData;
+  nutritionalData: NutritionalData;
 }) {
   const [title, setTitle] = useState('');
-  const [formState, setFormState] = useState(initialData);
   const [formErrors, setFormErrors] = useState(() =>
     rows.reduce((map, { id }) => {
       map[id] = false;
@@ -111,9 +100,8 @@ export function NutritionalInfo({
     id: NutritionalValues,
     target: EventTarget & HTMLInputElement
   ) => {
-    const newFormState = { ...formState, [id]: target.value };
-    setFormState(newFormState);
     if (checkInputValidity(id, target)) {
+      const newFormState = { ...nutritionalData, [id]: target.value };
       onNutritionChange(newFormState);
     }
   };
@@ -149,7 +137,7 @@ export function NutritionalInfo({
             onBlur={(e) => {
               checkInputValidity(id, e.target);
             }}
-            value={formState[id]}
+            value={nutritionalData[id]}
             min='0'
             step={`${step || 0.1}`}
           />
