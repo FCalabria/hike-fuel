@@ -14,7 +14,6 @@ Foods with high caloric density are not good enough for the trail. A correct amo
 
 Roughly, some functionalities that I'd like to incorporate in the future would be:
 
-- Automatically read nutritional info labels from a picture
 - Add a calories calculator based on trail data, to estimate the food needed.
 - Compare two or more foods
 - Some docs on why and how the evaluation is done
