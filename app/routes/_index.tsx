@@ -1,20 +1,14 @@
-import {
-  TypedResponse,
-  json,
-  type ActionFunctionArgs,
-  type MetaFunction,
-} from '@remix-run/node';
+import { type MetaFunction } from '@remix-run/node';
 import { useRouteError } from '@remix-run/react';
 import { useRef, useState } from 'react';
 import { ImageLoader, ImageLoaderHandle } from '~/components/imageLoader';
 import { NutritionalData, NutritionalInfo } from '~/components/nutritionalInfo';
 import { NutritionalResults } from '~/components/nutritionalResults';
-import { usePromisifiedFetcher } from '~/hooks/usePromisifiedFetcher';
 import LoadingIcon from '~/icons/loading';
 import PhotoIcon from '~/icons/photo';
 import TrashIcon from '~/icons/trash';
 import { calculateNutritionalInfo } from '~/utils/nutritionalInfoCalculator';
-import { ReadImageData, readImage } from '~/utils/readImage';
+import { ReadImagePayloadTransformed } from './readImage';
 
 export const meta: MetaFunction = () => {
   return [
@@ -33,32 +27,6 @@ const getRandomId = () => {
   return Math.floor(Math.random() * 100);
 };
 
-type ReadImagePayloadTransformed = { [K in keyof ReadImageData]: string };
-type ActionReturn = TypedResponse<null> | ReadImagePayloadTransformed;
-
-export const action = async ({
-  request,
-}: ActionFunctionArgs): Promise<ActionReturn> => {
-  const body = await request.formData();
-  const img = body.get('img');
-  if (!img || typeof img !== 'string') {
-    throw json('img is empty or not the correct type', { status: 400 });
-  }
-  return readImage(img)
-    .then((info) => {
-      if (!info) throw json(null, { status: 204 });
-      return Object.fromEntries(
-        Object.entries(info).map(([key, value]) => [
-          key,
-          value !== null ? value.toString() : '',
-        ])
-      ) as ReadImagePayloadTransformed;
-    })
-    .catch((error) => {
-      throw json(error, { status: 500 });
-    });
-};
-
 export function ErrorBoundary() {
   // TODO improve error handling in FED
   const error = useRouteError();
@@ -75,7 +43,7 @@ export function ErrorBoundary() {
 
 export default function Index() {
   const imageLoaderRef = useRef<ImageLoaderHandle>(null);
-  const fetcher = usePromisifiedFetcher<NutritionalData>();
+  const [loadingImage, setLoadingImage] = useState(false);
   const [foods, setFoods] = useState<Food[]>([
     { title: '', id: getRandomId() },
   ]);
@@ -114,11 +82,29 @@ export default function Index() {
 
   const handleAddFoodFromPicture = (img?: string | null) => {
     if (!img) return;
-    fetcher.submit({ img }, { method: 'POST' }).then((response) => {
-      const newIndex = foods.length;
-      handleAddFood(response);
-      handleChangeNutritionalResults(response, newIndex);
-    });
+    setLoadingImage(true);
+    try {
+      fetch('/readImage', {
+        method: 'POST',
+        body: img,
+      })
+        .then((response) => {
+          if (response.ok) {
+            return response.json() as Promise<ReadImagePayloadTransformed>;
+          }
+          throw new Error(response.statusText);
+        })
+        .then((response) => {
+          if (response) {
+            const newIndex = foods.length;
+            handleAddFood(response);
+            handleChangeNutritionalResults(response, newIndex);
+          }
+        });
+    } catch (error) {
+      console.log('LOG  |  handleAddFoodFromPicture  |  error', error);
+    }
+    setLoadingImage(false);
   };
 
   const handleChangeNutritionalResults = (
@@ -172,12 +158,12 @@ export default function Index() {
             </button>
             <button
               className='btn btn-primary inline-flex gap-1 items-center'
-              disabled={fetcher.state !== 'idle'}
+              disabled={loadingImage}
               onClick={() => {
                 imageLoaderRef.current?.loadImage();
               }}
             >
-              {fetcher.state === 'idle' ? <PhotoIcon /> : <LoadingIcon />}
+              {loadingImage ? <LoadingIcon /> : <PhotoIcon />}
               Añadir de foto
             </button>
           </div>
