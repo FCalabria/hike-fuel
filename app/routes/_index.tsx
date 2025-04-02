@@ -10,6 +10,7 @@ import TrashIcon from '~/icons/trash';
 import { calculateNutritionalInfo } from '~/utils/nutritionalInfoCalculator';
 import { ReadImagePayloadTransformed } from './readImage';
 import { type NutritionalData } from '~/sharedTypes';
+import { Header } from '~/components/header';
 
 export const meta: MetaFunction = () => {
   return [
@@ -121,7 +122,7 @@ export default function Index() {
   return (
     <div className='min-h-screen bg-gradient-to-b from-sky-100 via-green-50 to-yellow-50  py-4 px-3'>
       <div className='max-w-2xl mx-auto'>
-        <h1 className='text-3xl font-bold text-slate-800 pb-4'>Hike fuel</h1>
+        <Header />
         <div className='space-y-2'>
           <ImageLoader
             ref={imageLoaderRef}

@@ -4,13 +4,16 @@
 
 @layer components {
   .btn {
-    @apply py-2 px-5 font-semibold;
+    @apply py-2 px-5 font-semibold rounded-sm;
   }
   .btn-primary {
     @apply bg-sky-300 hover:bg-yellow-300 focus:bg-yellow-300;
   }
   .btn-destructive {
     @apply bg-red-500 hover:bg-rose-300 focus:bg-rose-300;
+  }
+  .btn-secondary {
+    @apply bg-transparent hover:bg-sky-300 focus:bg-sky-300;
   }
   .btn-icon {
     @apply px-2;
