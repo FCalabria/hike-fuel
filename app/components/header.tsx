@@ -1,12 +1,14 @@
+import { SignOutButton, useUser } from '@clerk/remix';
+import { Link } from '@remix-run/react';
 import { ReactNode, useState } from 'react';
 import UserIcon from '~/icons/user';
 
 export function Header() {
-  const userIsLoggedIn = false;
+  const { isSignedIn, user } = useUser();
   const [menuVisible, setMenuVisible] = useState(false);
 
   const toggleMenu = () => {
-    setMenuVisible(!menuVisible);
+    setTimeout(() => setMenuVisible(!menuVisible), 100);
   };
 
   return (
@@ -23,7 +25,11 @@ export function Header() {
           onClick={toggleMenu}
           onBlur={toggleMenu}
         >
-          <UserIcon />
+          {user && user.hasImage ? (
+            <img className='w-6 rounded-sm' src={user.imageUrl} />
+          ) : (
+            <UserIcon />
+          )}
         </button>
         <ul
           id='userMenu'
@@ -33,21 +39,21 @@ export function Header() {
             !menuVisible && 'hidden'
           }`}
         >
-          {userIsLoggedIn ? (
-            <MenuItem>Log out</MenuItem>
-          ) : (
-            <MenuItem>Log in</MenuItem>
-          )}
+          <li role='menuitem'>
+            {isSignedIn ? (
+              <SignOutButton redirectUrl='/'>
+                <button className='btn btn-secondary text-nowrap'>
+                  Log out
+                </button>
+              </SignOutButton>
+            ) : (
+              <Link to='/sign-in' className='btn btn-secondary text-nowrap'>
+                Log in
+              </Link>
+            )}
+          </li>
         </ul>
       </div>
     </div>
-  );
-}
-
-function MenuItem({ children }: { children: ReactNode }) {
-  return (
-    <li role='menuitem'>
-      <button className='btn btn-secondary text-nowrap'>{children}</button>
-    </li>
   );
 }

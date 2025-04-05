@@ -3,6 +3,9 @@
 @tailwind utilities;
 
 @layer components {
+  a.btn {
+    @apply block;
+  }
   .btn {
     @apply py-2 px-5 font-semibold rounded-sm;
   }
