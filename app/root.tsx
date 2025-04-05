@@ -35,4 +35,10 @@ function App() {
   return <Outlet />;
 }
 
-export default ClerkApp(App);
+export default ClerkApp(App, {
+  appearance: {
+    variables: {
+      borderRadius: '0',
+    },
+  },
+});
