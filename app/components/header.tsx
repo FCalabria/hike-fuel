@@ -60,7 +60,7 @@ export function Header() {
           ref={menuButtonRef}
         >
           {user && user.hasImage ? (
-            <img className='w-6 rounded-sm' src={user.imageUrl} />
+            <img className='w-6 rounded-sm' src={user.imageUrl} alt='User avatar' />
           ) : (
             <UserIcon />
           )}

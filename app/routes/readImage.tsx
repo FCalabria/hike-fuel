@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, TypedResponse, json } from '@remix-run/node';
+import { ActionFunctionArgs, json } from '@remix-run/node';
 import { ReadImageData, readImage } from '~/utils/readImage';
 
 export type ReadImagePayloadTransformed =

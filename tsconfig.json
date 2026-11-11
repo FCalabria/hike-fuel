@@ -28,5 +28,6 @@
 
     // Vite takes care of building everything, not tsc.
     "noEmit": true
-  }
+  },
+  "exclude": ["app/routes.ts", "react-router.config.ts", ".react-router"]
 }

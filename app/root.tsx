@@ -11,7 +11,19 @@ import { LoaderFunction } from '@remix-run/node';
 import { rootAuthLoader } from '@clerk/remix/ssr.server';
 import { ClerkApp } from '@clerk/remix';
 
-export const loader: LoaderFunction = (args) => rootAuthLoader(args);
+export const loader: LoaderFunction = (args) => {
+  if (!process.env.CLERK_SECRET_KEY) {
+    return {
+      clerkState: {
+        __internal_clerk_state: {
+          __clerk_ssr_state: null,
+          __publishableKey: 'pk_test_bW9jay1jbGVyay1rZXkk',
+        },
+      },
+    };
+  }
+  return rootAuthLoader(args);
+};
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (

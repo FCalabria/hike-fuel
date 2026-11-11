@@ -2,5 +2,14 @@ node_modules
 
 /.cache
 /build
+.react-router
 .env.local
+.DS_Store
+test-results/
+playwright-report/
+app/routes.ts
+react-router.config.ts
 .vercel
+context/
+.env
+
