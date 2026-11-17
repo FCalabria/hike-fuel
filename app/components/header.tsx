@@ -1,10 +1,10 @@
-import { SignOutButton, useUser } from '@clerk/remix';
-import { Link } from '@remix-run/react';
+import { Link } from 'react-router';
 import { useEffect, useRef, useState } from 'react';
 import UserIcon from '~/icons/user';
 
 export function Header() {
-  const { isSignedIn, user } = useUser();
+  const [isSignedIn] = useState(false);
+  const [user] = useState<{ hasImage?: boolean; imageUrl?: string } | null>(null);
   const [menuVisible, setMenuVisible] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const menuButtonRef = useRef<HTMLButtonElement>(null);
@@ -26,7 +26,6 @@ export function Header() {
         menuButtonRef.current?.focus();
       }
 
-      // This is not what the specification says at all https://www.w3.org/WAI/ARIA/apg/patterns/menubar/
       if (
         event.key === 'Tab' &&
         menuRef.current &&
@@ -59,7 +58,7 @@ export function Header() {
           onClick={toggleMenu}
           ref={menuButtonRef}
         >
-          {user && user.hasImage ? (
+          {user && user.hasImage && user.imageUrl ? (
             <img className='w-6 rounded-sm' src={user.imageUrl} alt='User avatar' />
           ) : (
             <UserIcon />
@@ -75,14 +74,12 @@ export function Header() {
         >
           <li role='menuitem'>
             {isSignedIn ? (
-              <SignOutButton redirectUrl='/'>
-                <button
-                  className='btn btn-secondary text-nowrap'
-                  onClick={() => setMenuVisible(false)}
-                >
-                  Log out
-                </button>
-              </SignOutButton>
+              <button
+                className='btn btn-secondary text-nowrap'
+                onClick={() => setMenuVisible(false)}
+              >
+                Log out
+              </button>
             ) : (
               <Link
                 to='/sign-in'

@@ -1,4 +1,4 @@
-import { ActionFunctionArgs, json } from '@remix-run/node';
+import { ActionFunctionArgs, data } from 'react-router';
 import { ReadImageData, readImage } from '~/utils/readImage';
 
 export type ReadImagePayloadTransformed =
@@ -12,11 +12,11 @@ export const action = async ({
 }: ActionFunctionArgs): Promise<ReadImagePayloadTransformed> => {
   const img = await request.text();
   if (!img || typeof img !== 'string') {
-    throw json('img is empty or not the correct type', { status: 400 });
+    throw data('img is empty or not the correct type', { status: 400 });
   }
   return readImage(img)
     .then((info) => {
-      if (!info) throw json(null, { status: 204 });
+      if (!info) throw data(null, { status: 204 });
       return Object.fromEntries(
         Object.entries(info).map(([key, value]) => [
           key,
@@ -25,6 +25,6 @@ export const action = async ({
       ) as ReadImagePayloadTransformed;
     })
     .catch((error) => {
-      throw json(error, { status: 500 });
+      throw data(error, { status: 500 });
     });
 };

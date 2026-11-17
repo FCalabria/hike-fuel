@@ -1,5 +1,4 @@
-import { type MetaFunction } from '@remix-run/node';
-import { useRouteError } from '@remix-run/react';
+import { type MetaFunction, useRouteError } from 'react-router';
 import { useRef, useState } from 'react';
 import { ImageLoader, ImageLoaderHandle } from '~/components/imageLoader';
 import { NutritionalInfo } from '~/components/nutritionalInfo';

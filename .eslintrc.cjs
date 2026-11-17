@@ -19,7 +19,7 @@ module.exports = {
     commonjs: true,
     es6: true,
   },
-  ignorePatterns: ['!**/.server', '!**/.client', 'app/routes.ts', 'react-router.config.ts'],
+  ignorePatterns: ['!**/.server', '!**/.client'],
 
   // Base config
   extends: ['eslint:recommended'],
