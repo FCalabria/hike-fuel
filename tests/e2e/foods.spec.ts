@@ -71,15 +71,30 @@ test.describe('Hike Fuel - Core Flows', () => {
 
   test('4. should update total nutritional evaluation when entering food values', async ({ page }) => {
     // Fill in nutritional values for the first food
+    // Use click + fill + Tab to ensure React controlled inputs update properly
     const portionInput = page.getByLabel('Porción');
     const energyInput = page.getByLabel('Energía');
     const fatsInput = page.getByLabel('Grasas');
     const carbsInput = page.getByLabel('Hidratos de carbono');
 
+    await portionInput.click();
     await portionInput.fill('100');
+    await expect(portionInput).toHaveValue('100');
+
+    await energyInput.click();
     await energyInput.fill('500');
+    await expect(energyInput).toHaveValue('500');
+
+    await fatsInput.click();
     await fatsInput.fill('20');
+    await expect(fatsInput).toHaveValue('20');
+
+    await carbsInput.click();
     await carbsInput.fill('60');
+    await expect(carbsInput).toHaveValue('60');
+
+    // Blur the last input to ensure all change events are processed
+    await carbsInput.blur();
 
     // Density should update: 500 kcal / 100g = 5.00 kcal/gr
     await expect(page.getByText('5.00 kcal/gr')).toBeVisible();
