@@ -1,0 +1,29 @@
+name: Supabase Keep-Alive
+
+on:
+  schedule:
+    # Ejecutar cada 4 días a las 00:00 UTC para evitar la pausa por inactividad (pausa a los 7 días)
+    - cron: '0 0 */4 * *'
+  workflow_dispatch: # Permite ejecución manual desde la pestaña Actions
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase Database
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL || 'https://wuzuzfdiadmfmczqmfnx.supabase.co' }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY || 'sb_publishable_d2bO_C8aoZ6qqSXXt24eYQ_9ke1MIgx' }}
+        run: |
+          echo "Pinging Supabase to keep instance active..."
+          response=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY" \
+            "$SUPABASE_URL/rest/v1/snacks?select=id&limit=1")
+          echo "Response HTTP status: $response"
+          if [ "$response" -ge 200 ] && [ "$response" -lt 500 ]; then
+            echo "Supabase ping successful!"
+          else
+            echo "Supabase ping returned error status: $response"
+            exit 1
+          fi
