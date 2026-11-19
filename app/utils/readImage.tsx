@@ -1,9 +1,10 @@
-import OpenAI from 'openai';
+import { generateText, Output } from 'ai';
+import { createGoogle } from '@ai-sdk/google';
 import { z } from 'zod';
-import { zodResponseFormat } from 'openai/helpers/zod';
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+const google = createGoogle({
+  apiKey:
+    process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY,
 });
 
 const nutritionalInfo = z.object({
@@ -26,7 +27,13 @@ export async function readImage(
     return null;
   }
   try {
-    const chatCompletion = await openai.chat.completions.create({
+    const { output } = await generateText({
+      model: google(process.env.GEMINI_MODEL || 'gemini-3.5-flash'),
+      output: Output.object({
+        schema: nutritionalInfo,
+        name: 'nutritional_info',
+        description: 'Nutritional information extracted from the food label',
+      }),
       messages: [
         {
           role: 'user',
@@ -36,20 +43,20 @@ export async function readImage(
               text: 'This image contains a nutritional info label. It can be in any language, but probably is in spanish or english. The information might be duplicated in columns referencing different serving sizes: in that case, always use the data in the first column. I need you to return the values per portion with key-value pairs where the value always represents grams except for the calories where it represents kcal. If you cannot identify some or all the values, use null. ',
             },
             {
-              type: 'image_url',
-              image_url: {
-                url: base64Img,
-              },
+              type: 'file',
+              data: base64Img,
+              mediaType: 'image/*',
             },
           ],
         },
       ],
-      response_format: zodResponseFormat(nutritionalInfo, 'nutritional_info'),
-      model: 'gpt-4o-mini',
     });
-    const info = chatCompletion.choices[0].message.content;
-    console.debug('--->  |  readImage  |  info<---', info);
-    return info ? JSON.parse(info) : null;
+
+    console.debug(
+      '--->  |  readImage  |  info<---',
+      output ? JSON.stringify(output) : output
+    );
+    return output ?? null;
   } catch (error) {
     console.debug('--->  |  readImage  |  error<---', error);
     throw error;
