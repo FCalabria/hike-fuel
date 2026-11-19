@@ -19,6 +19,35 @@ const nutritionalInfo = z.object({
 
 export type ReadImageData = z.infer<typeof nutritionalInfo>;
 
+async function optimizeImageBase64(
+  base64Img: string
+): Promise<{ data: string; mediaType: string }> {
+  try {
+    const sharp = (await import('sharp')).default;
+    const base64Data = base64Img.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
+    const optimized = await sharp(buffer)
+      .resize({
+        width: 1024,
+        height: 1024,
+        fit: 'inside',
+        withoutEnlargement: true,
+      })
+      .grayscale()
+      .jpeg({ quality: 80 })
+      .toBuffer();
+    return {
+      data: `data:image/jpeg;base64,${optimized.toString('base64')}`,
+      mediaType: 'image/jpeg',
+    };
+  } catch {
+    return {
+      data: base64Img,
+      mediaType: 'image/*',
+    };
+  }
+}
+
 export async function readImage(
   base64Img: string
 ): Promise<ReadImageData | null> {
@@ -27,8 +56,11 @@ export async function readImage(
     return null;
   }
   try {
+    const { data: optimizedImg, mediaType } =
+      await optimizeImageBase64(base64Img);
+
     const { output } = await generateText({
-      model: google(process.env.GEMINI_MODEL || 'gemini-3.5-flash'),
+      model: google(process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite'),
       output: Output.object({
         schema: nutritionalInfo,
         name: 'nutritional_info',
@@ -44,8 +76,8 @@ export async function readImage(
             },
             {
               type: 'file',
-              data: base64Img,
-              mediaType: 'image/*',
+              data: optimizedImg,
+              mediaType,
             },
           ],
         },

@@ -85,8 +85,8 @@ describe('readImage with Gemini Flash', () => {
     );
     expect(messageContent[1]).toEqual({
       type: 'file',
-      data: sampleBase64,
-      mediaType: 'image/*',
+      data: expect.stringMatching(/^data:image\//),
+      mediaType: expect.stringMatching(/image\//),
     });
   });
 
