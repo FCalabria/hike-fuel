@@ -1,6 +1,10 @@
 import { ActionFunctionArgs, data } from 'react-router';
 import { ReadImageData, readImage } from '~/utils/readImage';
 
+export const config = {
+  maxDuration: 60,
+};
+
 export type ReadImagePayloadTransformed =
   | {
       [K in keyof ReadImageData]: string;
