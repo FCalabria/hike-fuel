@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { useEffect, useRef, useState } from 'react';
+import LogoIcon from '~/icons/logo';
 import UserIcon from '~/icons/user';
 
 export function Header() {
@@ -45,7 +46,19 @@ export function Header() {
 
   return (
     <div className='flex items-center pb-4'>
-      <h1 className='text-3xl font-bold text-slate-800'>Hike fuel</h1>
+      <h1
+        className='flex items-center gap-2.5 text-[30px] font-extrabold tracking-[-0.04em] leading-none'
+        style={{
+          fontFamily:
+            "'Plus Jakarta Sans', system-ui, -apple-system, sans-serif",
+        }}
+      >
+        <LogoIcon className='h-9 w-auto shrink-0' />
+        <span>
+          <span className='text-[#231B15]'>Hike</span>{' '}
+          <span className='text-[#F28B24] -ml-[0.16em]'>Fuel</span>
+        </span>
+      </h1>
       <div ref={menuRef} className='ml-auto relative'>
         <button
           type='button'

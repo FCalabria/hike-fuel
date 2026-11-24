@@ -1,5 +1,6 @@
 import {
   Links,
+  type LinksFunction,
   Meta,
   Outlet,
   Scripts,
@@ -7,6 +8,21 @@ import {
 } from 'react-router';
 import './index.css';
 import './tailwind.css';
+
+export const links: LinksFunction = () => [
+  { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+  { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
+  {
+    rel: 'preconnect',
+    href: 'https://fonts.gstatic.com',
+    crossOrigin: 'anonymous',
+  },
+  {
+    rel: 'stylesheet',
+    href: 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&display=swap',
+  },
+];
 
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
